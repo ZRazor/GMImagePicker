@@ -21,7 +21,7 @@
 {
     if (self = [super init]) {
         _selectedAssets = [[NSMutableArray alloc] init];
-        
+
         // Default values:
         _displaySelectionInfoToolbar = YES;
         _displayAlbumsNumberOfAssets = YES;
@@ -29,12 +29,12 @@
         _allowsMultipleSelection = YES;
         _confirmSingleSelection = NO;
         _showCameraButton = NO;
-        
+
         // Grid configuration:
         _colsInPortrait = 3;
         _colsInLandscape = 5;
         _minimumInteritemSpacing = 2.0;
-        
+
         // Sample of how to select the collections you want to display:
         _customSmartCollections = @[@(PHAssetCollectionSubtypeSmartAlbumFavorites),
                                     @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
@@ -45,14 +45,14 @@
                                     @(PHAssetCollectionSubtypeSmartAlbumPanoramas)];
         // If you don't want to show smart collections, just put _customSmartCollections to nil;
         //_customSmartCollections=nil;
-        
+
         // Which media types will display
         _mediaTypes = @[@(PHAssetMediaTypeAudio),
                         @(PHAssetMediaTypeVideo),
                         @(PHAssetMediaTypeImage)];
-        
+
         self.preferredContentSize = kPopoverContentSize;
-        
+
         // UI Customisation
         _pickerBackgroundColor = [UIColor whiteColor];
         _pickerTextColor = [UIColor darkTextColor];
@@ -60,17 +60,17 @@
         _pickerBoldFontName = @"HelveticaNeue-Bold";
         _pickerFontNormalSize = 14.0f;
         _pickerFontHeaderSize = 17.0f;
-        
+
         _navigationBarBackgroundColor = [UIColor whiteColor];
         _navigationBarTextColor = [UIColor darkTextColor];
         _navigationBarTintColor = [UIColor darkTextColor];
-        
+
         _toolbarBarTintColor = [UIColor whiteColor];
         _toolbarTextColor = [UIColor darkTextColor];
         _toolbarTintColor = [UIColor darkTextColor];
-        
+
         _pickerStatusBarStyle = UIStatusBarStyleDefault;
-        
+
         [self setupNavigationController];
     }
     return self;
@@ -86,8 +86,7 @@
     _navigationController.toolbar.translucent = YES;
     _navigationController.toolbar.barTintColor = _toolbarBarTintColor;
     _navigationController.toolbar.tintColor = _toolbarTintColor;
-    [(UIView*)[_navigationController.toolbar.subviews objectAtIndex:0] setAlpha:0.75f];  // URGH - I know!
-    
+
     _navigationController.navigationBar.backgroundColor = _navigationBarBackgroundColor;
     _navigationController.navigationBar.tintColor = _navigationBarTintColor;
     NSDictionary *attributes;
@@ -98,7 +97,7 @@
         attributes = @{NSForegroundColorAttributeName : _navigationBarTextColor};
     }
     _navigationController.navigationBar.titleTextAttributes = attributes;
-    
+
     [self updateToolbar];
 }
 
@@ -114,11 +113,11 @@
     GMAlbumsViewController *albumsViewController = [[GMAlbumsViewController alloc] init];
     _navigationController = [[UINavigationController alloc] initWithRootViewController:albumsViewController];
     _navigationController.delegate = self;
-    
+
     _navigationController.navigationBar.translucent = YES;
     [_navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     _navigationController.navigationBar.shadowImage = [UIImage new];
-    
+
     [_navigationController willMoveToParentViewController:self];
     [_navigationController.view setFrame:self.view.frame];
     [self.view addSubview:_navigationController.view];
@@ -144,11 +143,11 @@
 {
     [self.selectedAssets insertObject:asset atIndex:self.selectedAssets.count];
     [self updateDoneButton];
-    
+
     if (!self.allowsMultipleSelection) {
         if (self.confirmSingleSelection) {
             NSString *message = self.confirmSingleSelectionPrompt ? self.confirmSingleSelectionPrompt : [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"picker.confirm.message",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"Do you want to select the image you tapped on?")];
-            
+
             [[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"picker.confirm.title",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"Are You Sure?")]
                                         message:message
                                        delegate:self
@@ -168,7 +167,7 @@
     if (self.selectedAssets.count == 0) {
         [self updateDoneButton];
     }
-    
+
     if (self.displaySelectionInfoToolbar || self.showCameraButton) {
         [self updateToolbar];
     }
@@ -179,7 +178,7 @@
     if (!self.allowsMultipleSelection) {
         return;
     }
-    
+
     UINavigationController *nav = (UINavigationController *)self.childViewControllers[0];
     for (UIViewController *viewController in nav.viewControllers) {
         viewController.navigationItem.rightBarButtonItem.enabled = (self.autoDisableDoneButton ? self.selectedAssets.count > 0 : TRUE);
@@ -213,7 +212,7 @@
     if ([self.delegate respondsToSelector:@selector(assetsPickerControllerDidCancel:)]) {
         [self.delegate assetsPickerControllerDidCancel:self];
     }
-    
+
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -240,13 +239,13 @@
     if (self.selectedAssets.count == 0) {
         return nil;
     }
-    
+
     NSPredicate *photoPredicate = [self predicateOfAssetType:PHAssetMediaTypeImage];
     NSPredicate *videoPredicate = [self predicateOfAssetType:PHAssetMediaTypeVideo];
-    
+
     NSInteger nImages = [self.selectedAssets filteredArrayUsingPredicate:photoPredicate].count;
     NSInteger nVideos = [self.selectedAssets filteredArrayUsingPredicate:videoPredicate].count;
-    
+
     if (nImages > 0 && nVideos > 0) {
         return [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"picker.selection.multiple-items",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"%@ Items Selected" ), @(nImages + nVideos)];
     } else if (nImages > 1) {
@@ -277,23 +276,23 @@
 
         return;
     }
-    
+
     // This allows the selection of the image taken to be better seen if the user is not already in that VC
     if (self.autoSelectCameraImages && [self.navigationController.topViewController isKindOfClass:[GMAlbumsViewController class]]) {
         [((GMAlbumsViewController *)self.navigationController.topViewController) selectAllAlbumsCell];
     }
-    
+
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.sourceType = UIImagePickerControllerSourceTypeCamera;
     picker.mediaTypes = @[(NSString *)kUTTypeImage];
     picker.allowsEditing = NO;
     picker.delegate = self;
     picker.modalPresentationStyle = UIModalPresentationPopover;
-    
+
     UIPopoverPresentationController *popPC = picker.popoverPresentationController;
     popPC.permittedArrowDirections = UIPopoverArrowDirectionAny;
     popPC.barButtonItem = button;
-    
+
     [self showViewController:picker sender:button];
 }
 
@@ -308,12 +307,12 @@
                                                               style:UIBarButtonItemStylePlain
                                                              target:nil
                                                              action:nil];
-    
+
     NSDictionary *attributes = [self toolbarTitleTextAttributes];
     [title setTitleTextAttributes:attributes forState:UIControlStateNormal];
     [title setTitleTextAttributes:attributes forState:UIControlStateDisabled];
     [title setEnabled:NO];
-    
+
     return title;
 }
 
@@ -332,7 +331,7 @@
     UIBarButtonItem *camera = [self cameraButtonItem];
     UIBarButtonItem *title  = [self titleButtonItem];
     UIBarButtonItem *space  = [self spaceButtonItem];
-    
+
     NSMutableArray *items = [[NSMutableArray alloc] init];
     if (_showCameraButton) {
         [items addObject:camera];
@@ -340,7 +339,7 @@
     [items addObject:space];
     [items addObject:title];
     [items addObject:space];
-    
+
     return [NSArray arrayWithArray:items];
 }
 
@@ -376,7 +375,7 @@
                                               otherButtonTitles:nil];
         [alert show];
     }
-    
+
     // Note: The image view will auto refresh as the photo's are being observed in the other VCs
 }
 
